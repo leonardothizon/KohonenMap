@@ -80,9 +80,19 @@ public class Mapa {
 			
 			// atualiza pesos vizinhança conforme o raio
 			for(int j = (grupo - raio); j <= (grupo + raio); j++) {
+				
 				if(j >= 0 && j < numNeuroniosSaida ) {
 					pesosW[x][j] += taxaAprendizagem * (entradaX[x] - pesosW[x][j]);
 				}
+				else if (j < 0) {
+					int idxJ = numNeuroniosSaida + j;
+					pesosW[x][idxJ] += taxaAprendizagem * (entradaX[x] - pesosW[x][idxJ]);
+				}
+				else if (j >= numNeuroniosSaida) {
+					int idxJ = j - numNeuroniosSaida;
+					pesosW[x][idxJ] += taxaAprendizagem * (entradaX[x] - pesosW[x][idxJ]);
+				}
+				
 			}
 
 		}
