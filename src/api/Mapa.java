@@ -1,5 +1,7 @@
 package api;
 
+import java.util.Random;
+
 /**
  * Classe responsável por gerar um para auto-organizável utilizando o algoritmo de KOHONEN.
  * 
@@ -12,12 +14,12 @@ public class Mapa {
 	private byte raio = 0;
 	private double reducaoLinear;
 	
-	private short numNeuroniosEntrada, numNeuroniosSaida;
+	private int numNeuroniosEntrada, numNeuroniosSaida;
 	public double[][] pesosW;
 	
 	public byte[] entradaX, grupos;
 	
-	public Mapa(short numNeuroniosEntrada, short numeroNeuroniosSaida, double taxaAprendizagem, byte raio, double reducaoLinear) {
+	public Mapa(int numNeuroniosEntrada, int numeroNeuroniosSaida, double taxaAprendizagem, byte raio, double reducaoLinear) {
 		
 		this.numNeuroniosEntrada = numNeuroniosEntrada;
 		this.numNeuroniosSaida = numeroNeuroniosSaida;
@@ -27,21 +29,25 @@ public class Mapa {
 		
 		pesosW = new double[numNeuroniosEntrada][numeroNeuroniosSaida];
 		
-		pesosW = new double[][]{ {0.2,0.8}, {0.6,0.4}, {0.5,0.7}, {0.9,0.3}};
+//		pesosW = new double[][]{ {0.2,0.8}, {0.6,0.4}, {0.5,0.7}, {0.9,0.3}};
 		
-//		Random random = new Random();
-//		// Inicializa pesos w
-//		for (int i = 0; i < numNeuroniosEntrada; i++) {
-//			for (int j = 0; j < numNeuroniosSaida; j++) {
-//				pesosW[i][j] = (double) Math.round( (random.nextDouble() * 2 - 1) * 100) / 100;
-//			}
-//		}
+		Random random = new Random();
+		// Inicializa pesos w
+		for (int i = 0; i < numNeuroniosEntrada; i++) {
+			for (int j = 0; j < numNeuroniosSaida; j++) {
+				pesosW[i][j] = (double) Math.round( (random.nextDouble() * 2 - 1) * 100) / 100;
+			}	
+		}
+		
+		this.grupos = new byte[numNeuroniosEntrada];
+		for(int i = 0; i < numNeuroniosSaida; i++) {
+			grupos[i] = (byte) i;
+		}
 		
 	}
 	
-	public void treinar(byte[] entradaX, byte[] grupos) {
+	public void treinar(short[] entradaX) {
 		
-		this.grupos = grupos;
 		int grupo = -1;
 		double menorDistancia = -1;
 		
@@ -67,9 +73,17 @@ public class Mapa {
 
 		}
 		
+		System.out.println(grupo);
 		for (int x = 0; x < numNeuroniosEntrada; x++) {
-
-			pesosW[x][grupo] += taxaAprendizagem * (entradaX[x] - pesosW[x][grupo]);
+			
+//			pesosW[x][grupo] += taxaAprendizagem * (entradaX[x] - pesosW[x][grupo]);
+			
+			// atualiza pesos vizinhança conforme o raio
+			for(int j = (grupo - raio); j <= (grupo + raio); j++) {
+				if(j >= 0 && j < numNeuroniosSaida ) {
+					pesosW[x][j] += taxaAprendizagem * (entradaX[x] - pesosW[x][j]);
+				}
+			}
 
 		}
 		
@@ -80,7 +94,7 @@ public class Mapa {
 		taxaAprendizagem = reducaoLinear * taxaAprendizagem;
 	}
 	
-	public int testar(int[] entradaX) {
+	public int testar(short[] entradaX) {
 		
 		int grupo = -1;
 		double menorDistancia = -1;
