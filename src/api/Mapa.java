@@ -12,7 +12,7 @@ public class Mapa {
 
 	private double taxaAprendizagem = 0.5;	
 	private byte raio = 0;
-	private double reducaoLinear;
+	private double reducaoLinear = 0;
 	
 	private int numNeuroniosEntrada, numNeuroniosSaida;
 	public double[][] pesosW;
@@ -27,18 +27,20 @@ public class Mapa {
 		this.raio = raio;
 		this.reducaoLinear = reducaoLinear;
 		
-		pesosW = new double[numNeuroniosEntrada][numeroNeuroniosSaida];
-		
+// 		pesos do exemplo dos slides
 //		pesosW = new double[][]{ {0.2,0.8}, {0.6,0.4}, {0.5,0.7}, {0.9,0.3}};
 		
-		Random random = new Random();
+		pesosW = new double[numNeuroniosEntrada][numeroNeuroniosSaida];
+		
 		// Inicializa pesos w
+		Random random = new Random();
 		for (int i = 0; i < numNeuroniosEntrada; i++) {
 			for (int j = 0; j < numNeuroniosSaida; j++) {
 				pesosW[i][j] = (double) Math.round( (random.nextDouble() * 2 - 1) * 100) / 100;
 			}	
 		}
 		
+		// inicializa grupos conforme o número de neurônios de saída
 		this.grupos = new byte[numNeuroniosEntrada];
 		for(int i = 0; i < numNeuroniosSaida; i++) {
 			grupos[i] = (byte) i;
@@ -76,9 +78,7 @@ public class Mapa {
 		System.out.println(grupo);
 		for (int x = 0; x < numNeuroniosEntrada; x++) {
 			
-//			pesosW[x][grupo] += taxaAprendizagem * (entradaX[x] - pesosW[x][grupo]);
-			
-			// atualiza pesos vizinhança conforme o raio
+			// atualiza pesos vizinhança conforme o raio. Será atualizado também o peso do grupo vencedor
 			for(int j = (grupo - raio); j <= (grupo + raio); j++) {
 				
 				if(j >= 0 && j < numNeuroniosSaida ) {
@@ -101,7 +101,8 @@ public class Mapa {
 	}
 	
 	public void ajustarTaxa() {
-		taxaAprendizagem = reducaoLinear * taxaAprendizagem;
+		if(reducaoLinear > 0)
+			taxaAprendizagem = reducaoLinear * taxaAprendizagem;
 	}
 	
 	public int testar(short[] entradaX) {
@@ -127,7 +128,6 @@ public class Mapa {
 				menorDistancia = distancia;
 				grupo = z;
 			}
-			
 
 		}
 		
@@ -135,6 +135,7 @@ public class Mapa {
 		
 	}
 	
+	// método para debug
 	public void exibirPesos() {
 		
 		for (int x = 0; x < numNeuroniosEntrada; x++) {
@@ -151,6 +152,5 @@ public class Mapa {
 		}
 		
 	}
-	
 	
 }
